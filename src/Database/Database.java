@@ -5,6 +5,7 @@
  */
 package Database;
 
+import Print.Print;
 import com.mysql.jdbc.CallableStatement;
 import com.mysql.jdbc.Connection;
 import java.sql.DriverManager;
@@ -22,6 +23,7 @@ public class Database {
     String id = "";
     String quantity = "";
     Connection connection = null;
+    Print printer = null;
 
     DatabaseSingleton databaseSingleton = DatabaseSingleton.getInstanceSingleton();
 
@@ -44,6 +46,7 @@ public class Database {
             stmt.execute();
             String imagePath = stmt.getString(2);
             System.out.println("Image ID = " + id+ " Imagepath = " + imagePath);
+            printer = new Print(id, imagePath);            
 
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
