@@ -20,12 +20,18 @@ import java.util.logging.Logger;
  */
 public class Database {
 
-    String id = "";
-    String quantity = "";
-    Connection connection = null;
-    Print printer = null;
+    // set the database properties
+    private String id = "";
+    private String quantity = "";
 
-    DatabaseSingleton databaseSingleton = DatabaseSingleton.getInstanceSingleton();
+    // define the connection
+    private Connection connection = null;
+
+    // define the printer object
+    private Print printer = null;
+
+    // get the databasesingleton instance
+    private DatabaseSingleton databaseSingleton = DatabaseSingleton.getInstanceSingleton();
 
     public Database(String id, String quantity) {
         this.id = id;
@@ -35,18 +41,28 @@ public class Database {
     }
 
     private void executeQuery() {
-        // 
+        // the name of the stored procedure 
         String query = "{call getPhotoPath(?,?)}";
 
         try {
+            // create the statement
             CallableStatement stmt = (CallableStatement) connection.prepareCall(query);
 
+            // set the first procedure paramater
             stmt.setInt(1, Integer.parseInt(id));
+
+            // set the procedure output parameter
             stmt.registerOutParameter(2, java.sql.Types.VARCHAR);
+
+            // execute the query
             stmt.execute();
+
+            // get the output parameter
             String imagePath = stmt.getString(2);
-            System.out.println("Image ID = " + id+ " Imagepath = " + imagePath);
-            printer = new Print(id, imagePath);            
+            System.out.println("Image ID = " + id + " Imagepath = " + imagePath);
+
+            // create the printer object and print the file to pdf
+            printer = new Print(id, imagePath);
 
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());

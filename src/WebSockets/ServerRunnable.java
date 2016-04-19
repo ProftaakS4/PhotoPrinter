@@ -10,11 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Dictionary;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -22,27 +18,33 @@ import java.util.logging.Logger;
  */
 public class ServerRunnable implements Runnable {
 
+    // define socket object
     private Socket socket = null;
-    private ObjectOutputStream out = null;
-    private ObjectInputStream in = null;
+    
+    // define object outputstream
+    private final ObjectOutputStream out = null;
+    
+    // define objectinputstream
+    private final ObjectInputStream in = null;
+    
+    // define database object
     private Database database = null;
-    String id;
-    String quantity;
+    
+    // define id and quantity references
+    private String id;
+    private String quantity;
 
-    /**
-     * Create object with a given socket.
-     *
-     * @param s Socket that is used to communicate with client
-     */
+    // constructon with incoming socket
     public ServerRunnable(Socket s) {
         this.socket = s;
     }
 
+    // implemented runnable.run method
     @Override
     public void run() {
         try {
+            // get the correct inputstream
             InputStream is = socket.getInputStream();
-            //OutputStream os = socket.getOutputStream();
 
             // Receiving
             byte[] lenBytes = new byte[4];
@@ -64,6 +66,7 @@ public class ServerRunnable implements Runnable {
             database = new Database(id, quantity);
 
         } catch (IOException ex) {
+            System.out.println(ex.getMessage());
         }
     }
 }

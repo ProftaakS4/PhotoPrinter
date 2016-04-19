@@ -16,43 +16,44 @@ import java.util.logging.Logger;
  * @author Vito Corleone
  */
 public class DatabaseSingleton {
-    
+
+    // connectionstring properties
     private final String url = "jdbc:mysql://192.168.27.120:3306/";
     private final String dbName = "TestPhotocasus";
     private final String driver = "com.mysql.jdbc.Driver";
     private final String userName = "root";
     private final String password = "F05XsL";
+
+    // define connection
     private Connection connection = null;
-    
-    
+
     // create null instance of singleton
     private static DatabaseSingleton instance = null;
-    
+
     // protected constructor
-    protected DatabaseSingleton(){
-        
+    protected DatabaseSingleton() {
+
     }
-    
+
     // get or create databasesingleton
-    public static DatabaseSingleton getInstanceSingleton(){
-        if(instance == null){
+    public static DatabaseSingleton getInstanceSingleton() {
+        if (instance == null) {
             instance = new DatabaseSingleton();
-        } 
+        }
         return instance;
     }
-    
+
     // get or create databaseconnection
-    public Connection getDatabaseConnection(){
-        if(connection == null){
-            try { 
+    public Connection getDatabaseConnection() {
+        if (connection == null) {
+            try {
                 connection = (Connection) DriverManager.getConnection(url + dbName, userName, password);
                 System.out.println("Databaseconnection OK");
                 return connection;
             } catch (SQLException ex) {
-                Logger.getLogger(DatabaseSingleton.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println(ex.getMessage());
             }
         }
-        return connection;        
+        return connection;
     }
-    
 }
