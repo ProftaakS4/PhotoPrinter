@@ -23,6 +23,7 @@ public class Database {
     // set the database properties
     private String id = "";
     private String quantity = "";
+    private String type = "";
 
     // define the connection
     private Connection connection = null;
@@ -33,9 +34,10 @@ public class Database {
     // get the databasesingleton instance
     private DatabaseSingleton databaseSingleton = DatabaseSingleton.getInstanceSingleton();
 
-    public Database(String id, String quantity) {
+    public Database(String id, String quantity, String type) {
         this.id = id;
         this.quantity = quantity;
+        this.type = type;
         connection = databaseSingleton.getDatabaseConnection();
         executeQuery();
     }
@@ -59,10 +61,10 @@ public class Database {
 
             // get the output parameter
             String imagePath = stmt.getString(2);
-            System.out.println("Image ID = " + id + " Imagepath = " + imagePath);
+            System.out.println("Image ID = " + id + " Imagepath = " + imagePath + "Type " + type);
 
             // create the printer object and print the file to pdf
-            printer = new Print(id, imagePath);
+            printer = new Print(id, "C:\\Users\\Vito Corleone\\Documents\\NetBeansProjects\\WebSocketsPTS4\\Godfather15_flip.jpg", quantity, type);
 
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());

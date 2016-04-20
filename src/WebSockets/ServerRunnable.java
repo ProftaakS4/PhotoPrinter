@@ -57,13 +57,15 @@ public class ServerRunnable implements Runnable {
 
             // break down the received chars into photoID and quantity
             int semicolon = received.indexOf(";");
+            int hashtag = received.indexOf("#");
             int total = received.length();
             String id = received.substring(0, semicolon);
-            String quantity = received.substring(semicolon + 1, total);
-            System.out.println("id = " + id + " quantity = " + quantity);
+            String quantity = received.substring(semicolon + 1, hashtag);
+            String type = received.substring(hashtag +1, total);
+            System.out.println("id = " + id + " quantity = " + quantity + " type = " + type);
             
             // call the database to get the HIGH resolution image path of the corresponding photoID;
-            database = new Database(id, quantity);
+            database = new Database(id, quantity, type);
 
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
