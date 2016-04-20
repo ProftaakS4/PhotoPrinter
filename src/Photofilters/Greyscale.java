@@ -25,8 +25,6 @@ public class Greyscale {
 
     private BufferedImage master = null;
     private String imagepath;
-    private int masterWidth;
-    private int masterHeight;
 
     public Greyscale(String imagepath) {
         this.imagepath = imagepath;

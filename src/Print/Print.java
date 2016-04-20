@@ -6,6 +6,7 @@
 package Print;
 
 import Photofilters.Greyscale;
+import Photofilters.Sepia;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -26,6 +27,7 @@ public class Print {
     // define document object
     private Document document;
     private Greyscale greyscale;
+    private Sepia sepia;
 
     // define the properties
     private final String input; // .gif and .jpg are ok too!
@@ -96,7 +98,7 @@ public class Print {
 
     private void checkPhotoFilter() {
         if (type.equals("Sepia")) {
-
+              generateSepia();
         } else if (type.equals("Black")) {
             generateGreyscale();
         } else {
@@ -109,5 +111,12 @@ public class Print {
         BufferedImage greyImage = greyscale.toGrayScale();
         printToPDF(greyImage);
         System.out.println("print grey");
+    }
+    
+    private void generateSepia(){
+        sepia = new Sepia(input);
+        BufferedImage sepiaImage = sepia.color2sepia();
+        printToPDF(sepiaImage);
+        System.out.println("print sepia");
     }
 }
