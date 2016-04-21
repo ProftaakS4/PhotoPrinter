@@ -14,9 +14,13 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.PdfContentByte;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -76,9 +80,16 @@ public class Print {
             document.open();
             try {
                 PdfContentByte pdfCB = new PdfContentByte(writer);
-                Image image = Image.getInstance(pdfCB, bufferedImage, 1);
-                image.scaleToFit(640, 480);
-                document.add(Image.getInstance(image));
+                if (bufferedImage == null) {
+                    Image image = Image.getInstance(input);
+                    image.scaleToFit(640, 480);
+                   document.add(image);
+                } else {
+                    Image image = Image.getInstance(pdfCB, bufferedImage, 1);
+                    image.scaleToFit(640, 480);
+                    document.add(Image.getInstance(image));
+                }
+
             } catch (DocumentException ex) {
                 System.out.println(ex.getMessage());
             } catch (IOException ex) {
@@ -98,11 +109,12 @@ public class Print {
 
     private void checkPhotoFilter() {
         if (type.equals("Sepia")) {
-              generateSepia();
+            generateSepia();
         } else if (type.equals("Black")) {
             generateGreyscale();
         } else {
-            //printToPDF();
+            printToPDF(null);
+            //generateColor();
         }
     }
 
@@ -112,11 +124,24 @@ public class Print {
         printToPDF(greyImage);
         System.out.println("print grey");
     }
-    
-    private void generateSepia(){
+
+    private void generateSepia() {
         sepia = new Sepia(input);
         BufferedImage sepiaImage = sepia.color2sepia();
         printToPDF(sepiaImage);
         System.out.println("print sepia");
+    }
+
+    private void generateColor() {
+
+        try {
+            BufferedImage in = ImageIO.read(new File(input));
+            System.out.println(input);
+            BufferedImage newImage = new BufferedImage(in.getWidth(), in.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            printToPDF(newImage);
+            System.out.println("print color");
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 }
