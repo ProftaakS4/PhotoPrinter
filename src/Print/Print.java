@@ -54,56 +54,56 @@ public class Print {
 
     private void printToPDF(BufferedImage bufferedImage) {
         // define pdfprinter and within try clause create
-        PdfWriter writer = null;
-        try {
-
-            // define fileoutputstream and within try clause create
-            FileOutputStream fos = null;
-
-            //for (int i = 0; i < quantity; i++) {
-            document = new Document(PageSize.A4.rotate());
+        for (int i = 0; i < quantity; i++) {
+            PdfWriter writer = null;
             try {
-                fos = new FileOutputStream(output + photoID + "-" + quantity + ".pdf");
-            } catch (FileNotFoundException ex) {
-                System.out.println(ex.getMessage());
-            }
 
-            // create the writer object
-            try {
-                writer = PdfWriter.getInstance(document, fos);
-            } catch (DocumentException ex) {
-                System.out.println(ex.getMessage());
-            }
+                // define fileoutputstream and within try clause create
+                FileOutputStream fos = null;
 
-            // open the writer and the document and add the image into the document
-            writer.open();
-            document.open();
-            try {
-                PdfContentByte pdfCB = new PdfContentByte(writer);
-                if (bufferedImage == null) {
-                    Image image = Image.getInstance(input);
-                    image.scaleToFit(640, 480);
-                   document.add(image);
-                } else {
-                    Image image = Image.getInstance(pdfCB, bufferedImage, 1);
-                    image.scaleToFit(640, 480);
-                    document.add(Image.getInstance(image));
+                document = new Document(PageSize.A4.rotate());
+                try {
+                    fos = new FileOutputStream(output + photoID + "-" + Integer.toString(i + 1) + ".pdf");
+                } catch (FileNotFoundException ex) {
+                    System.out.println(ex.getMessage());
                 }
 
-            } catch (DocumentException ex) {
-                System.out.println(ex.getMessage());
-            } catch (IOException ex) {
-                System.out.println(ex.getMessage());
+                // create the writer object
+                try {
+                    writer = PdfWriter.getInstance(document, fos);
+                } catch (DocumentException ex) {
+                    System.out.println(ex.getMessage());
+                }
+
+                // open the writer and the document and add the image into the document
+                writer.open();
+                document.open();
+                try {
+                    PdfContentByte pdfCB = new PdfContentByte(writer);
+                    if (bufferedImage == null) {
+                        Image image = Image.getInstance(input);
+                        image.scaleToFit(640, 480);
+                        document.add(image);
+                    } else {
+                        Image image = Image.getInstance(pdfCB, bufferedImage, 1);
+                        image.scaleToFit(640, 480);
+                        document.add(Image.getInstance(image));
+                    }
+
+                } catch (DocumentException ex) {
+                    System.out.println(ex.getMessage());
+                } catch (IOException ex) {
+                    System.out.println(ex.getMessage());
+                }
+                // close the document and writer
+                document.close();
+                writer.close();
+
+                System.out.println("Printer done.");
+
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
-            // close the document and writer
-            document.close();
-            writer.close();
-            //  }
-
-            System.out.println("Printer done.");
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
         }
     }
 
