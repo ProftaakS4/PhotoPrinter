@@ -40,7 +40,7 @@ public class Print {
     private String type;
 
     // output is now set for demo purposes. Needs to change when live
-    private final String output = "C:\\Users\\Vito Corleone\\Desktop\\PTS4OutputPDF\\";
+    private final String output = "C:\\Users\\Stan\\Desktop\\PTS4OutputPDF\\";
 
     public Print(String photoID, String inputLocation, String quantity, String type) {
         this.photoID = photoID;

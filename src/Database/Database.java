@@ -60,7 +60,7 @@ public class Database {
             System.out.println("Image ID = " + id + " Imagepath = " + imagePath + "Type " + type);
 
             // create the printer object and print the file to pdf
-            printer = new Print(id, "C:\\Users\\Vito Corleone\\Documents\\NetBeansProjects\\WebSocketsPTS4\\Godfather15_flip.jpg", quantity, type);
+            printer = new Print(id, "C:\\Users\\Stan\\Documents\\GitHub\\PhotoPrinter\\Godfather15_flip.jpg", quantity, type);
 
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());

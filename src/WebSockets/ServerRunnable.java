@@ -62,9 +62,9 @@ public class ServerRunnable implements Runnable {
             String id = received.substring(0, semicolon);
             String quantity = received.substring(semicolon + 1, hashtag);
             String type = received.substring(hashtag +1, total);
-            if(type.contains("Black"))
+            if(type.contains("BLACK"))
                 type = "Black";
-            else if(type.contains("Sepia"))
+            else if(type.contains("SEPIA"))
                 type= "Sepia";
             else type = "Color";
             System.out.println("id = " + id + " quantity = " + quantity + " type = " + type);
