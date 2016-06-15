@@ -47,6 +47,7 @@ public class Sepia {
 
     public BufferedImage color2sepia() {
 
+
         try {
             BufferedImage sepia = new BufferedImage(master.getWidth(), master.getHeight(), BufferedImage.TYPE_INT_RGB);
             // Play around with this.  20 works well and was recommended
@@ -103,5 +104,6 @@ public class Sepia {
             System.out.println(ex.getMessage());
         }
         return null;
+
     }
 }

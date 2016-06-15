@@ -49,7 +49,6 @@ public class Greyscale {
     }
 
     public BufferedImage toGrayScale() {
-
         try {
             BufferedImage gray = new BufferedImage(master.getWidth(), master.getHeight(), BufferedImage.TYPE_INT_ARGB);
             // Automatic converstion....
@@ -61,5 +60,6 @@ public class Greyscale {
             System.out.println(ex.getMessage());
         }
         return null;
+
     }
 }
