@@ -135,8 +135,8 @@ public class ServerRunnable implements Runnable {
                 value = value + c;
                 System.out.println(value);
             } else {
-                System.out.println("index " + arrayIndex);
-                values[arrayIndex] = Integer.parseInt(value);
+                //System.out.println("index " + arrayIndex);
+                values[arrayIndex] = (int) Math.round(Double.parseDouble(value) * 1.5);
                 //System.out.println("" + values[arrayIndex]);
                 arrayIndex++;
                 value = "";
