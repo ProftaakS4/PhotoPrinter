@@ -62,40 +62,51 @@ public class ServerRunnable implements Runnable {
             byte[] receivedBytes = new byte[len];
             is.read(receivedBytes, 0, len);
             String received = new String(receivedBytes, 0, len);
-            
-            System.out.println(received);
-            
+
+            System.out.println("Received " + received);
+
             // set a boolean for a new order            
             if (received.equals("BEGIN")) {
                 System.out.println("BEGIN");
                 newOrder = true;
                 return;
-            }
-            else if (received.equals("END")) {
-                System.out.println("END");
-                images = new ArrayList<>();                
-                Print print = null;
-                for(Database database : photoIDFromOrder){
-                    print = new Print(database.getImagePath(),database.getType(),database.getCropValues());
-                    images.add(print.index());
+            } else if (received.contains("INDEX")) {
+                int X = received.indexOf("X");
+                int customerIndex = received.indexOf("?");
+                String photoIds = received.substring(X+1, customerIndex);
+                String customer = received.substring(customerIndex+ 1, received.length());
+                System.out.println("CustomerID = " + customer);
+                ArrayList<String> ids = getIDSForIndex(photoIds);
+                ArrayList<String> imagesPath = new ArrayList<String>();
+                Database database = null;
+                if (ids.size() > 1) {
+                    for (String id : ids) {
+                        if (!id.isEmpty()) {
+                            database = new Database(id);
+                            String imagepath = database.getImagePath();
+                            imagesPath.add(imagepath);
+                        }
+                    }
                 }
-                if(images.size() > 0){
-                   print.printIndex(images); 
-                }                    
-                photoIDFromOrder.clear();
-                images.clear();
+                if (imagesPath.size() > 1) {
+                    Print printer = new Print();
+                    printer.printIndex(imagesPath, database.getCustomer(customer));
+                }
+                return;
+            } else if (received.equals("END")) {
+                System.out.println("END");
                 newOrder = false;
                 return;
             }
-            if (!received.equals("BEGIN") || received.equals("END")) {
+            if (!received.equals("BEGIN") || received.equals("END") || !received.contains("INDEX")) {
                 System.out.println("processing");
-                
+
                 // break down the received chars into photoID and quantity
                 int semicolon = received.indexOf(";");
                 System.out.println(semicolon);
                 int hashtag = received.indexOf("#");
                 if (received.contains("&")) {
-                    cropValues = getCropPositions(received);                    
+                    cropValues = getCropPositions(received);
                 }
 
                 int total = received.length();
@@ -113,8 +124,7 @@ public class ServerRunnable implements Runnable {
 
                 // call the database to get the HIGH resolution image path of the corresponding photoID;
                 database = new Database(id, quantity, type, cropValues);
-                photoIDFromOrder.add(database);
-                database.executeQuery();                
+                database.executeQuery();
             }
 
         } catch (IOException ex) {
@@ -123,25 +133,46 @@ public class ServerRunnable implements Runnable {
     }
 
     private int[] getCropPositions(String received) {
-        received = received + " ";
-        int[] values = new int[4];
-        int arrayIndex = 0;
-        int symbol = received.indexOf("&") + 1;
-        System.out.println("symbol " + symbol);
-        String value = "";
-        for (int i = symbol; i < received.length(); i++) {
-            char c = received.charAt(i);
-            if (c != ' ') {
-                value = value + c;
-                System.out.println(value);
-            } else {
-                //System.out.println("index " + arrayIndex);
-                values[arrayIndex] = (int) Math.round(Double.parseDouble(value) * 1.5);
-                //System.out.println("" + values[arrayIndex]);
-                arrayIndex++;
-                value = "";
+        int[] values = null;
+        if (received.contains("&")) {
+            received = received + " ";
+            values = new int[4];
+            int arrayIndex = 0;
+            int symbol = received.indexOf("&") + 1;
+            System.out.println("symbol " + symbol);
+            String value = "";
+            for (int i = symbol; i < received.length(); i++) {
+                char c = received.charAt(i);
+                if (c != ' ') {
+                    value = value + c;
+                    System.out.println(value);
+                } else {
+                    //System.out.println("index " + arrayIndex);
+                    values[arrayIndex] = (int) Math.round(Double.parseDouble(value) * 1.5);
+                    //System.out.println("" + values[arrayIndex]);
+                    arrayIndex++;
+                    value = "";
+                }
             }
         }
         return values;
+    }
+
+    private ArrayList<String> getIDSForIndex(String received) {
+        String text = received + " ";
+        int index = text.indexOf("X") + 2;
+        ArrayList<String> temp = new ArrayList<String>();
+        String id = "";
+        for (int i = index; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (c != ' ') {
+                id = id + c;
+            } else {
+                temp.add(id);
+                System.out.println(id);
+                id = "";
+            }
+        }
+        return temp;
     }
 }

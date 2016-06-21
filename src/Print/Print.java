@@ -11,9 +11,13 @@ import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -23,6 +27,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -47,7 +53,7 @@ public class Print {
 
     // output is now set for demo purposes. Needs to change when live
     private final String output = "/home/student/Pictures/";
-
+    
     public Print(String photoID, String inputLocation, String quantity, String type, int[] cropValues) {
         this.photoID = photoID;
         this.input = inputLocation;
@@ -58,14 +64,18 @@ public class Print {
         BufferedImage result = checkPhotoFilter();
         printToPDF(result);
     }
-
-    public Print(String photoPath, String type, int[] cropValues) {
+    
+    public Print(String photoPath) {
         this.photoID = null;
         this.input = photoPath;
-        this.type = type;
-        this.cropValues = cropValues;
+        this.type = "Color";
     }
-
+    
+    public Print() {
+        this.photoID = null;
+        this.input = null;
+    }
+    
     private void printToPDF(BufferedImage bufferedImage) {
         // define pdfprinter and within try clause create
         for (int i = 0; i < quantity; i++) {
@@ -73,7 +83,7 @@ public class Print {
             try {
                 // define fileoutputstream and within try clause create
                 FileOutputStream fos = null;
-
+                
                 document = new Document(PageSize.A4.rotate());
                 fos = new FileOutputStream(output + photoID + "-" + Integer.toString(i + 1) + ".pdf");
 
@@ -98,7 +108,7 @@ public class Print {
                         image.scaleToFit(640, 480);
                         document.add(Image.getInstance(image));
                     }
-
+                    
                 } catch (DocumentException ex) {
                     System.out.println(ex.getMessage());
                 } catch (IOException ex) {
@@ -107,30 +117,28 @@ public class Print {
                 // close the document and writer
                 document.close();
                 writer.close();
-
+                
                 System.out.println("Printer done.");
-
+                
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         }
     }
-
+    
     private BufferedImage checkPhotoFilter() {
         BufferedImage result = null;
-
+        System.out.println("Checking photofiler = " + this.type);
         if (type.equals("Sepia")) {
             result = generateSepia();
         } else if (type.equals("Black")) {
             result = generateGreyscale();
         } else if (cropValues != null) {
             result = generateCrop(cropValues[0], cropValues[1], cropValues[2], cropValues[3]);
-        } else {
-            result = null;
         }
         return result;
     }
-
+    
     private BufferedImage generateGreyscale() {
         BufferedImage greyImage = null;
         try {
@@ -143,7 +151,7 @@ public class Print {
         }
         return greyImage;
     }
-
+    
     private BufferedImage generateSepia() {
         BufferedImage sepiaImage = null;
         try {
@@ -156,7 +164,7 @@ public class Print {
         }
         return sepiaImage;
     }
-
+    
     private BufferedImage generateColor() {
         BufferedImage in = null;
         try {
@@ -171,10 +179,10 @@ public class Print {
         }
         return in;
     }
-
+    
     private BufferedImage generateCrop(int x, int y, int w, int h) {
         BufferedImage in = null;
-        System.out.println("incoming " + x + " " + y +" " + w + " " +h);
+        System.out.println("incoming " + x + " " + y + " " + w + " " + h);
         try {
             //Rectangle newRectangle = new Rectangle(x, y, w, h);            
             in = ImageIO.read(new File(input));
@@ -186,7 +194,7 @@ public class Print {
         }
         return in;
     }
-
+    
     public BufferedImage index() {
         BufferedImage normal = null;
         BufferedImage index = null;
@@ -199,38 +207,103 @@ public class Print {
         }
         return index;
     }
-
-    public void printIndex(ArrayList<BufferedImage> bufferedImages) {
-        // define pdfprinter and within try clause create
-        PdfWriter writer = null;
-        FileOutputStream fos = null;
-        document = new Document(PageSize.A4.rotate());
+    
+    public void printIndex(ArrayList<String> imagesPath, String customer) {
         try {
-            fos = new FileOutputStream("index.pdf");
+            //ArrayList<Image> images = new ArrayList<Image>();
+            Map<Image, String> dict = new HashMap<Image, String>();
+            for (String path : imagesPath) {
+                try {
+                    System.out.println("path = /home/student" + path);
+                    int index = path.lastIndexOf("/");
+                    String photoId = path.substring(index + 1, path.length());
+                    Image newImage = Image.getInstance("/home/student" + path);
+                    //images.add(newImage);
+                    dict.put(newImage, photoId);
+                } catch (BadElementException ex) {
+                    Logger.getLogger(Print.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(Print.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            
+            System.out.println("Total images = " + dict.size());
+            Document index = new Document(PageSize.A4.rotate());
+            FileOutputStream fos = new FileOutputStream("/home/student/Pictures/index.pdf");
+            PdfWriter writer = PdfWriter.getInstance(index, fos);
+            writer.open();
+            index.open();
+            
+            PdfPTable adresTable = new PdfPTable(3);
+            PdfPCell adresCell = new PdfPCell(new Paragraph(customer));
+            adresCell.setColspan(3);
+            adresTable.addCell(adresCell);
+            adresTable.setHorizontalAlignment(Element.ALIGN_CENTER);
+            adresTable.setWidthPercentage(100);
+            index.add(adresTable);
+            PdfPTable table = new PdfPTable(imagesPath.size());
+            
+            for (Map.Entry<Image, String> image : dict.entrySet()) {
+                PdfPCell cell = new PdfPCell();                
+                table.setHorizontalAlignment(Element.ALIGN_LEFT);
+                table.setWidthPercentage(10);
+                table.addCell(image.getValue());
+                cell.addElement(image.getKey());
+                table.addCell(cell);
+                
+            }
+            index.add(table);
+            //index.add(adresTable);
+            index.close();
+            writer.close();
+            System.out.println("Index printed");
+
+//        // define pdfprinter and within try clause create
+//        PdfWriter writer = null;
+//        FileOutputStream fos = null;
+//        Document index = new Document(PageSize.A4.rotate());
+//        File file;
+//        try {
+//            file = new File("/home/student/Pictures/index.pdf");
+//            if(!file.exists()){
+//                file.createNewFile();
+//                
+//            }
+//            String test = "test data";
+//            fos = new FileOutputStream(file);
+//            fos.write(test.getBytes());
+//            fos.flush();
+//        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(Print.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (IOException ex) {
+//            Logger.getLogger(Print.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//
+//        for (BufferedImage image : bufferedImages) {            
+//                try {
+//                    writer = PdfWriter.getInstance(index, fos);
+//                } catch (DocumentException ex) {
+//                    System.out.println(ex.getMessage());
+//                }
+//                writer.open();
+//                index.open();
+//                try {
+//                    PdfContentByte pdfCB = new PdfContentByte(writer);
+//                    Image newImage = Image.getInstance(pdfCB, image, 1);
+//                    index.add(Image.getInstance(newImage));
+//                } catch (DocumentException ex) {
+//                    System.out.println(ex.getMessage());
+//                } catch (IOException ex) {
+//                Logger.getLogger(Print.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
+//        index.close();
+//        writer.close();
+//        System.out.println("Index done.");
+        } catch (DocumentException ex) {
+            Logger.getLogger(Print.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Print.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        for (BufferedImage image : bufferedImages) {            
-                try {
-                    writer = PdfWriter.getInstance(document, fos);
-                } catch (DocumentException ex) {
-                    System.out.println(ex.getMessage());
-                }
-                writer.open();
-                document.open();
-                try {
-                    PdfContentByte pdfCB = new PdfContentByte(writer);
-                    Image newImage = Image.getInstance(pdfCB, image, 1);
-                    document.add(Image.getInstance(newImage));
-                } catch (DocumentException ex) {
-                    System.out.println(ex.getMessage());
-                } catch (IOException ex) {
-                Logger.getLogger(Print.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        document.close();
-        writer.close();
-        System.out.println("Printer done.");
     }
 }
